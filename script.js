@@ -2,7 +2,7 @@ const questions=[
     {
         question:"What is 2+2?",
         answers:[
-            {text:"3", corect:false},
+            {text:"3", correct:false},
             {text:"0", correct:false},
             {text:"5", correct:false},
             {text:"4", correct:true},
@@ -34,13 +34,16 @@ const questions=[
 const questionElement=document.getElementById("question");
 const answerButtons=document.getElementById("answer-buttons");
 const nextButton=document.getElementById("next-btn");
+const scor =document.getElementById("scor");
 
 let currentQuestionIndex=0;
 let score=0;
 
 function startQuiz(){
-    currentQuestionIndex=0;
-    score=0;
+    scor.textContent = 0;
+    document.querySelector("#puncte").style.display = "block";
+    currentQuestionIndex= 0;
+    score= 0;
     nextButton.innerHTML="Next";
     showQuestion();
 }
@@ -56,6 +59,11 @@ function showQuestion(){
         button.innerHTML = answer.text;
         button.classList.add("btn");
         answerButtons.appendChild(button);
+        if(answer.correct){
+            button.dataset.correct= answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+        
     });
 }
 
@@ -65,6 +73,52 @@ function resetState(){
         answerButtons.removeChild(answerButtons.firstChild);
     }
 }
+
+
+function selectAnswer(e){
+    const selectedBtn = e.target;
+    const isCorrect = selectedBtn.dataset.correct === "true";
+    if(isCorrect){
+        selectedBtn.classList.add("correct");
+        score++;
+        scor.innerHTML=score;
+    }else{
+        selectedBtn.classList.add("incorrect");
+    }
+
+    Array.from(answerButtons.children).forEach(button => {
+        if(button.dataset.correct === "true"){
+            button.classList.add("correct");
+        }
+        button.disabled = true;
+    })
+    nextButton.style.display="block";
+}
+
+function showScore(){
+    resetState();
+    document.querySelector("#puncte").style.display = "none";
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length} !`;
+    nextButton.innerHTML= "Play Again";
+    nextButton.style.display="block";
+}
+
+function handleNextButton(){
+    currentQuestionIndex++;
+    if(currentQuestionIndex < questions.length){
+        showQuestion();
+    }else{
+        showScore();
+    }
+}
+
+nextButton.addEventListener("click", () => {
+    if(currentQuestionIndex < questions.length){
+        handleNextButton();
+    }else{
+        startQuiz();
+    }
+});
 
 startQuiz();
 
